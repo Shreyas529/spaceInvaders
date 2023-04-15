@@ -15,6 +15,9 @@ icon=pygame.image.load('spaceship.png').convert_alpha()
 
 background=pygame.image.load('background.jpg').convert_alpha()
 
+exit_button=pygame.image.load('sign-out.png').convert_alpha()
+exit_rect=exit_button.get_rect(topright=(800,0))
+
 #player
 playerImg=pygame.image.load('spaceship (1).png').convert_alpha()
 player_mask=pygame.mask.from_surface(playerImg)
@@ -38,7 +41,7 @@ for i in range(noe):
     enemy_mask.append(pygame.mask.from_surface(enemyImg[i]))
     enemyX.append(random.randint(0,735))
     enemyY.append(random.randint(50,250))
-    exchange.append(1) 
+    exchange.append(0.5) 
     eychange.append(40)
 
 #bullet
@@ -82,6 +85,9 @@ font = pygame.font.Font('freesansbold.ttf',32)
 textX=10
 testY=10
 
+def show_exit():
+    screen.blit(exit_button,(735,0))
+
 def show_score(x,y):
     score=font.render("Score :"+str(score_value),True,(255,255,255))
     screen.blit(score,(x,y))
@@ -89,12 +95,14 @@ def show_score(x,y):
 over_font=pygame.font.Font('freesansbold.ttf',64)
 
 def display_over():
+    global score_value    
     over_text=over_font.render("GAME OVER",True,(0,0,0))
     reset_text=font.render("Press Space to restart",True,(0,0,0))
-    screen.blit(reset_text,(230 , 350))
-    global score_value
-    score_value=0
+    score=font.render("Score :"+str(score_value),True,(0,0,0))
     screen.blit(over_text,(200,250))
+    screen.blit(reset_text,(230 , 350))
+    screen.blit(score,(320,420))
+    score_value=0
     pygame.display.update()  
 
 game_active=True
@@ -103,6 +111,10 @@ def place_enemy():
     for i in range(noe):
         enemyX[i]=(random.randint(0,735))
         enemyY[i]=(random.randint(50,250))
+        
+def place_specific(i):
+    enemyX[i]=(random.randint(0,735))
+    enemyY[i]=(random.randint(50,250))   
 
 FONT = pygame.font.SysFont("Roboto", 100)
 
@@ -149,6 +161,7 @@ while running:
     #BG
     screen.blit(background,(0,0))
     
+    
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             running = False
@@ -173,9 +186,15 @@ while running:
             if event.key==pygame.K_UP or event.key==pygame.K_DOWN:
                 pychange=0
                 
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            left,mid,right=pygame.mouse.get_pressed()
+            if left and (not mid) and (not right):
+                if exit_rect.collidepoint(event.pos):
+                    game_active=False
     
     if loading_finished:
-        if game_active:    
+        if game_active: 
+            show_exit()
             playerX+=pxchange
             playerY+=pychange
             if playerX>800:
@@ -190,12 +209,14 @@ while running:
             for i in range(noe):
                 enemyX[i]+=exchange[i]
                 if enemyX[i]<=0:
-                    exchange[i]=1
+                    exchange[i]=0.5
                     enemyY[i]+=eychange[i]
                 elif enemyX[i]>=736:
-                    exchange[i]=-1
+                    exchange[i]=-0.5
                     enemyY[i]+=eychange[i]
-                    
+                
+                if(enemyY[i]>534):  place_specific(i)
+                
                 collision=isCollision(bulletX,bulletY,enemyX[i],enemyY[i])
             
                 if collision:
