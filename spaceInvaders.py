@@ -2,7 +2,28 @@ import pygame
 import random
 import math as m
 import threading
+from menu import *
 
+
+choice = main_menu()
+if(choice=="EASY"):
+    exspeed=0.35
+    eyspeed=35
+    
+elif(choice=="MEDIUM"):
+    print("entered ")
+    exspeed=0.5
+    eyspeed=40
+    
+elif(choice=="HARD"):
+    exspeed=0.75
+    eyspeed=50
+
+else:
+    pygame.quit()
+    sys.exit()
+    
+    
 pygame.init()
 
 #width , height
@@ -13,10 +34,13 @@ running = True
 #icons and spaceship
 icon=pygame.image.load('spaceship.png').convert_alpha()
 
-background=pygame.image.load('background.jpg').convert_alpha()
+background=pygame.image.load('background.png').convert_alpha()
 
 exit_button=pygame.image.load('sign-out.png').convert_alpha()
 exit_rect=exit_button.get_rect(topright=(800,0))
+
+pause_button=pygame.image.load('pause.png').convert_alpha()
+pause_rect=pause_button.get_rect(topright=(700,0))
 
 #player
 playerImg=pygame.image.load('spaceship (1).png').convert_alpha()
@@ -41,8 +65,9 @@ for i in range(noe):
     enemy_mask.append(pygame.mask.from_surface(enemyImg[i]))
     enemyX.append(random.randint(0,735))
     enemyY.append(random.randint(50,250))
-    exchange.append(0.5) 
-    eychange.append(40)
+    exchange.append(exspeed) 
+    eychange.append(eyspeed)
+
 
 #bullet
 bulletImg=pygame.image.load('bullet.png').convert_alpha()
@@ -54,6 +79,30 @@ bychange=0.75
 bstate='ready'  #ready = cant seee bullet on screen     fire = can be seen
 
 
+
+def pause(paused):
+    global screen,background
+    while paused:
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_c:
+                    paused=False
+                elif event.key==pygame.K_q:
+                    pygame.quit()
+                    quit()
+        
+        screen.blit(background,(0,0))
+        pause_text=over_font.render("Paused",True,(237, 5, 222))
+        resume_text=font.render("Press C to continue",True,(237, 5, 222))
+        screen.blit(pause_text,(200,250))
+        screen.blit(resume_text,(200,350))
+        pygame.display.update()    
+        
+                        
+    
 def player(x,y):
     #draw the img on the screen
     screen.blit(playerImg,(x,y))
@@ -88,20 +137,37 @@ testY=10
 def show_exit():
     screen.blit(exit_button,(735,0))
 
+def show_pause():
+    screen.blit(pause_button,(635,0))
+
+file_read=open("Leader Board.txt","r")
+max_score=int(file_read.read().strip())
+file_read.close()
+file_write=open("Leader Board.txt","w")
+
+
 def show_score(x,y):
-    score=font.render("Score :"+str(score_value),True,(255,255,255))
+    global max_score
+    score=font.render("Score :"+str(score_value),True,(237, 5, 222))
+    high_score=font.render("High Score :"+str(max_score),True,(237, 5, 222))
+    screen.blit(high_score,(x,y+30))
     screen.blit(score,(x,y))
 
-over_font=pygame.font.Font('freesansbold.ttf',64)
+over_font=pygame.font.Font('freesansbold.ttf',100)
 
 def display_over():
-    global score_value    
-    over_text=over_font.render("GAME OVER",True,(0,0,0))
-    reset_text=font.render("Press Space to restart",True,(0,0,0))
-    score=font.render("Score :"+str(score_value),True,(0,0,0))
-    screen.blit(over_text,(200,250))
-    screen.blit(reset_text,(230 , 350))
-    screen.blit(score,(320,420))
+    global score_value,max_score,background
+    screen.blit(background,(0,0))
+    over_text=over_font.render("GAME OVER",True,(237, 5, 222))
+    reset_text=font.render("Press Space to restart",True,(237, 5, 222))
+    quit_text=font.render("Press Esc to Quit the game",True, (237, 5, 222))
+    score=font.render("Score :"+str(score_value),True,(237, 5, 222))
+    screen.blit(quit_text,(200,325))
+    screen.blit(over_text,(100,200))
+    screen.blit(reset_text,(230 , 400))
+    screen.blit(score,(320,500))
+    max_score=max(max_score,score_value)
+    file_write.write(f'{max_score}')
     score_value=0
     pygame.display.update()  
 
@@ -154,6 +220,7 @@ threading.Thread(target=doWork).start()
 
 
 while running:
+    global paused
     
     #R,G,B
     screen.fill((0, 0, 0))
@@ -191,9 +258,16 @@ while running:
             if left and (not mid) and (not right):
                 if exit_rect.collidepoint(event.pos):
                     game_active=False
+                    
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            left,mid,right=pygame.mouse.get_pressed()
+            if left and (not mid) and (not right):
+                if pause_rect.collidepoint(event.pos):
+                    pause(True)
     
     if loading_finished:
         if game_active: 
+            show_pause()
             show_exit()
             playerX+=pxchange
             playerY+=pychange
@@ -257,6 +331,9 @@ while running:
                     if (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE):
                         score_value=0
                         run = False
+                    if (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
+                        pygame.quit()
+                        sys.exit()
             place_enemy()
             playerX=370
             playerY=480
@@ -272,3 +349,4 @@ while running:
   
   
     pygame.display.update()
+    

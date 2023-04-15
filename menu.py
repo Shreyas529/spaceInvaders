@@ -6,7 +6,7 @@ pygame.init()
 SCREEN = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption("Menu")
 
-BG = pygame.image.load("Background.png")
+BG = pygame.image.load("background.png")
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("font.ttf", size)
@@ -43,45 +43,20 @@ def play():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_EASY.checkForInput(PLAY_MOUSE_POS):
-                    return 1
+                    return "EASY"
                 elif PLAY_MEDIUM.checkForInput(PLAY_MOUSE_POS):
-                    return 2
+                    return "MEDIUM"
                 elif PLAY_HARD.checkForInput(PLAY_MOUSE_POS):
-                    return 3
+                    return "HARD"
                 else:
-                    main_menu()
+                    #main_menu()
+                    return "NONE"
 
         pygame.display.update()
-def leaderboard():
-    while True:
-        LEADERBOARD_MOUSE_POS=pygame.mouse.get_pos()
-        SCREEN.blit(BG,(0,0))
-        LEADERBOARD_EASY=Button(image=None,pos=(640,300),text_input="EASY",font=get_font(75),base_color="black",hovering_color="green")
-        LEADERBOARD_EASY.changeColor(LEADERBOARD_MOUSE_POS)
-        LEADERBOARD_EASY.update(SCREEN)
-        LEADERBOARD_MEDIUM=Button(image=None,pos=(640,400),text_input="MEDIUM",font=get_font(75),base_color="black",hovering_color="green")
-        LEADERBOARD_MEDIUM.changeColor(LEADERBOARD_MOUSE_POS)
-        LEADERBOARD_MEDIUM.update(SCREEN)
-        LEADERBOARD_HARD=Button(image=None,pos=(640,500),text_input="HARD",font=get_font(75),base_color="black",hovering_color="green")
-        LEADERBOARD_HARD.changeColor(LEADERBOARD_MOUSE_POS)
-        LEADERBOARD_HARD.update(SCREEN)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if LEADERBOARD_EASY.checkForInput(LEADERBOARD_MOUSE_POS):
-                    return 1
-                elif LEADERBOARD_MEDIUM.checkForInput(LEADERBOARD_MOUSE_POS):
-                    return 2
-                elif LEADERBOARD_HARD.checkForInput(LEADERBOARD_MOUSE_POS):
-                    return 3
-                else:
-                    main_menu()
 
-        pygame.display.update()
 def main_menu():
-    
+    value="NONE"
+    while value=="NONE":
         SCREEN.blit(BG, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
@@ -91,9 +66,6 @@ def main_menu():
 
         PLAY_BUTTON = Button(image=pygame.image.load("Play Rect.png"), pos=(640, 250), 
                             text_input="PLAY", font=get_font(75), base_color="#bf0296", hovering_color="White")
-        RANKING_BUTTON = Button(image=pygame.image.load("Options Rect.png"), pos=(640, 400), 
-                            text_input="RANKINGS", font=get_font(75), base_color="#bf0296", hovering_color="White")
-        
         
         QUIT_BUTTON = Button(image=pygame.image.load("Quit Rect.png"), pos=(640, 550), 
                             text_input="QUIT", font=get_font(75), base_color="#bf0296", hovering_color="White")
@@ -110,13 +82,19 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    play()
-                if RANKING_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    leaderboard()
+                    value= play()                    
+                    if value!="NONE":
+                        return value
+                        break
+               
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()
+        if value!="NONE":
+            return value
+            # break
 
         pygame.display.update()
-
-main_menu()
+    print("exited while in menu")
+    print(value)
+    return value
