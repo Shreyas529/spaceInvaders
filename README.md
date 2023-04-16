@@ -13,9 +13,11 @@ AIM-Our aim was to develop a game known as space invaders in which a person has 
                 -On the top left corner of the screen the game shows your current score and the highest score for the current difficulty rating
                 -On the top right corner of the screen the game shows you two buttons :
                         1.)Pause: It pauses the game and stays paused until the user presses C whereby it resumes
-                        2.)Exit: It exits the game and displays a game over screen , The game over screen displays the score and if the user presses Space it                           starts a new game
+                        2.)Exit: It exits the game and displays a game over screen , The game over screen displays the score and if the user presses Space                            it starts a new game
                         but if the user presses Esc button it takes them to a confirm exit page . This page has option to confirm and cancel
                 -After Every 10 points the speed of the enemies increase 
                 -After Every 15 points there appears an slow down orb in a random location on the screen which when shot decreases the speed of the enemies
-                -The player might accidently close the game  , to prevent this , After the game has loaded there is a confirm exit page which appears everytime  
+                -The player might accidently close the game  , to prevent this , After the game has loaded there is a confirm exit page which appears                           everytime  
 
+        REQUIREMENTS
+                -pygame,threading,math,random,pygame_gui,sys,pygame-menu
