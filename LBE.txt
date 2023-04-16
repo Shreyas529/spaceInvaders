@@ -1,9 +1,2 @@
-Mallu:5
-Mallu:0
-asd:7
-asd:7
-ks:7
-ks:3
-ks:0
-mfb:4
-gf:1
+a:2
+a:1
