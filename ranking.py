@@ -27,12 +27,12 @@ def yours():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if BACK_RANKING.checkForInput(PLAY_MOUSE_POS):
                     return "BACK"
-        
         alldata=[]
         with open('./LBE.txt', 'r') as fp:
             for i in fp:
                 #print(fp.readline())
-                alldata.append(fp.readline().split(':'))
+                x=i.split(':')
+                alldata.append(x)
         if(len(alldata)>=5):        
             alldata.sort(key = lambda l: int(l[1].strip()), reverse=True)
             a=font.render(f"{alldata[0][0]}:{alldata[0][1].strip()}",True,(255,10,105))
@@ -58,7 +58,8 @@ def yours():
         with open('./LBM.txt', 'r') as fp:
             for i in fp:
                 #print(fp.readline())
-                blldata.append(fp.readline().split(':'))
+                x=i.split(':')
+                blldata.append(x)
         blldata.sort(key = lambda l: int(l[1].strip()), reverse=True)
         if(len(blldata)>=5):
             f=font.render(f"{blldata[0][0]}:{blldata[0][1].strip()}",True,(255,10,105))
@@ -81,8 +82,8 @@ def yours():
         clldata=[]
         with open('./LBH.txt', 'r') as fp:
             for i in fp:
-                #print(fp.readline())
-                clldata.append(fp.readline().split(':'))
+                x=i.split(':')
+                clldata.append(x)
         clldata.sort(key = lambda l: int(l[1].strip()), reverse=True)
         if(len(clldata)>=5):
             k=font.render(f"{clldata[0][0]}:{clldata[0][1].strip()}",True,(255,10,105))
@@ -90,7 +91,7 @@ def yours():
             l=font.render(f"{clldata[1][0]}:{clldata[1][1].strip()}",True,(255,10,105))
             SCREEN.blit(l,(600,200))
             m=font.render(f"{clldata[2][0]}:{clldata[2][1].strip()}",True,(255,10,105))
-            SCREEN.blit(m,600,300)
+            SCREEN.blit(m,(600,300))
             n=font.render(f"{clldata[3][0]}:{clldata[3][1].strip()}",True,(255,10,105))
             SCREEN.blit(n,(600,400))
             o=font.render(f"{clldata[4][0]}:{clldata[4][1].strip()}",True,(255,10,105))

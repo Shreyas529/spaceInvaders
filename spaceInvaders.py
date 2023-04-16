@@ -8,7 +8,6 @@ from username import *
 from pygame import mixer
 from ranking import *
 
-
 mixer.music.load('Poly.mp3')
 mixer.music.play(10)
 choice = main_menu()
@@ -39,29 +38,26 @@ while(True):
  else:
      yours()
      choice=main_menu()
-      
-    
-pygame.init()
 
+original_x_speed=exspeed
+original_y_speed=eyspeed
+pygame.init()
 #width , height
 screen = pygame.display.set_mode((800, 600))
-clock=pygame.time.Clock()
 mixer.music.load('background.wav')
 mixer.music.play(-1)
-
 
 running = True
 
 #icons and spaceship
 icon=pygame.image.load('spaceship.png').convert_alpha()
-
 background=pygame.image.load('background.png').convert_alpha()
-
 exit_button=pygame.image.load('sign-out.png').convert_alpha()
 exit_rect=exit_button.get_rect(topright=(800,0))
-
 pause_button=pygame.image.load('pause.png').convert_alpha()
 pause_rect=pause_button.get_rect(topright=(700,0))
+slow_down=pygame.image.load('slow-down.png').convert_alpha()
+slow_rect=slow_down.get_rect()
 
 #player
 playerImg=pygame.image.load('spaceship (1).png').convert_alpha()
@@ -88,7 +84,21 @@ for i in range(noe):
     enemyY.append(random.randint(50,250))
     exchange.append(exspeed) 
     eychange.append(eyspeed)
+    
+def change_enemy_speed(noe):
+    for i in range(noe):
+        if(exchange[i]<0):
+            exchange[i]-=exspeed
+        else:
+            eychange[i]+=eyspeed
 
+def slow_enemy_speed():
+     for i in range(noe):
+         if(exchange[i]<0):
+             exchange[i]=-1*original_x_speed
+         else:
+             eychange[i]=original_x_speed
+            
 
 #bullet
 bulletImg=pygame.image.load('bullet.png').convert_alpha()
@@ -97,11 +107,29 @@ bulletX=0
 bulletY=playerY
 bxchange=0
 bychange=0.75
-bstate='ready'  #ready = cant seee bullet on screen     fire = can be seen
+bstate='ready'  #ready = cant see bullet on screen     fire = can be seen
 
 name_list=[]
 score_list=[]
 score_dict={}
+
+slow_available=False
+slow_x=-100
+slow_y=-100
+last_grabbed=0
+speed_sx=0
+speed_sy=0.25
+
+def place_orb():
+    global slow_x,slow_y,speed_sx,speed_sy,slow_available
+    if slow_available:
+        slow_x=random.randint(35,765)
+        slow_y=random.randint(30,150)
+        screen.blit(slow_down,(slow_x,slow_y))
+        slow_rect.x=slow_x
+        slow_rect.y=slow_y
+        slow_available=False
+        
 
 def get_list(fp):
     global name_list,score_list,score_dict
@@ -151,10 +179,11 @@ def fire_bullet(x,y):
     screen.blit(bulletImg , (x+16,y+10))    
 
 score_value=0
+previous_score=0
 
 def isCollision(bulletX ,bulletY , enemyX , enemyY):
     distance=m.sqrt(m.pow(enemyX-bulletX,2)+m.pow(enemyY-bulletY,2))
-    if distance<27 and bstate=='fire':
+    if distance<32 and bstate=='fire':
         return True
     return False
 
@@ -242,8 +271,6 @@ def display_over():
     if choice=="EASY":  
         file_e.write(name+":"+str(score_value)+"\n")
         file_e.close()
-          
-            
     if choice=="MEDIUM":  
         file_m.write(name+":"+str(score_value)+"\n")
         file_m.close()
@@ -355,16 +382,21 @@ while running:
         if game_active: 
             show_pause()
             show_exit()
+            slow_x+=speed_sx
+            slow_y+=speed_sy
+            slow_rect.x=slow_x
+            slow_rect.y=slow_y
+            screen.blit(slow_down,(slow_x,slow_y))
             playerX+=pxchange
             playerY+=pychange
-            if playerX>800:
+            if playerX>750:
                 playerX=0
             if playerX<0:
-                playerX=800
-            if playerY<0:
-                playerY=600
-            if playerY>600:
-                playerY=0
+                playerX=750
+            if playerY<100:
+                playerY=550
+            if playerY>550:
+                playerY=100
             
             for i in range(noe):
                 enemyX[i]+=exchange[i]
@@ -385,6 +417,10 @@ while running:
                     bulletY=playerY
                     bstate='ready'
                     score_value+=1
+                    if  score_value%10==0 and score_value != 0:
+                        exspeed+=0.15
+                        eyspeed+=1.0
+                        change_enemy_speed(noe)
                     enemyX[i]=random.randint(0,735)
                     enemyY[i]=random.randint(50,250)
                 
@@ -393,7 +429,25 @@ while running:
                 game_active=not player_mask.overlap(enemy_mask[i],(enemyX[i]-playerX,enemyY[i]-playerY))
                 if game_active==False:
                     break
-
+            
+            if(score_value%15==0 and score_value != 0 and score_value!=previous_score):
+                    previous_score=score_value
+                    slow_available=True
+                    # print("po")
+                    place_orb()
+            
+            orb_collect=isCollision(bulletX,bulletY,slow_x,slow_y)
+            if  orb_collect:
+                exspeed-=0.25
+                eyspeed-=1.5
+                change_enemy_speed(noe)               
+                bulletY=playerY
+                bstate='ready'
+                slow_x=-100
+                slow_y=-100
+            # pygame.display.update()
+                
+            
             if bulletY<=0:
                 bulletY=playerY
                 bstate='ready'
@@ -411,7 +465,13 @@ while running:
             pygame.display.update()
             run = True
             game_active=True
-            
+            slow_available=False
+            slow_x=-100
+            slow_y=-100
+            last_grabbed=0
+            speed_sx=0
+            speed_sy=0.25
+            # screen.blit(slow_down,(slow_x,slow_y))
             while(run):
                 for event in pygame.event.get():
                     if event.type==pygame.QUIT:
