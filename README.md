@@ -9,11 +9,11 @@ AIM-Our aim was to develop a game known as space invaders in which a person has 
                 
         GAME
                 -Depending on the difficulty selected by the user in the aforementioned screen , The difficulty level is set
-                -After the difficulty has been selected the game ask for the users username which it uses to store the scores of the player
+                -After the difficulty has been selected the game ask for the users username which it uses to store the scores of the player. Privacy is our                     upmost concern and be rest assured that we would never sell you data to any outside third parties
                 -On the top left corner of the screen the game shows your current score and the highest score for the current difficulty rating
                 -On the top right corner of the screen the game shows you two buttons :
                         1.)Pause: It pauses the game and stays paused until the user presses C whereby it resumes
-                        2.)Exit: It exits the game and displays a game over screen , The game over screen displays the score and if the user presses Space it starts a new game
+                        2.)Exit: It exits the game and displays a game over screen , The game over screen displays the score and if the user presses Space it                           starts a new game
                         but if the user presses Esc button it takes them to a confirm exit page . This page has option to confirm and cancel
                 -After Every 10 points the speed of the enemies increase 
                 -After Every 15 points there appears an slow down orb in a random location on the screen which when shot decreases the speed of the enemies
