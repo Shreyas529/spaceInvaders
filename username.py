@@ -4,7 +4,7 @@ import sys
 
 pygame.init()
 
-WIDTH, HEIGHT = 1600, 900
+WIDTH, HEIGHT = 1280,720
 BG = pygame.image.load("background.png")
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Text Input in PyGame | BaralTech")
@@ -55,8 +55,3 @@ def get_user_name():
         SCREEN.blit(BG,(0,0))
 
         manager.draw_ui(SCREEN)
-
-
-    
-
-get_user_name()
