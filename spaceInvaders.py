@@ -5,29 +5,50 @@ import threading
 from menu import *
 from button import Button
 from username import *
+from pygame import mixer
+from ranking import *
 
 
+mixer.music.load('Poly.mp3')
+mixer.music.play(10)
 choice = main_menu()
-if(choice=="EASY"):
-    exspeed=0.35
-    eyspeed=35
-    name=get_user_name()
-    
-elif(choice=="MEDIUM"):
-    exspeed=0.5
-    eyspeed=40
-    name=get_user_name()
-    
-elif(choice=="HARD"):
-    exspeed=0.75
-    eyspeed=50
-    name=get_user_name()
 
+while(True):
+ 
+ if(choice=="EASY"):
+     exspeed=0.35
+     eyspeed=35
+     name=get_user_name()
+     break
+     
+
+    
+ elif(choice=="MEDIUM"):
+     exspeed=0.5
+     eyspeed=40
+     name=get_user_name()
+     break
+     
+    
+ elif(choice=="HARD"):
+     exspeed=0.75
+     eyspeed=50
+     name=get_user_name()
+     break
+ 
+ else:
+     yours()
+     choice=main_menu()
+      
     
 pygame.init()
 
 #width , height
 screen = pygame.display.set_mode((800, 600))
+clock=pygame.time.Clock()
+mixer.music.load('background.wav')
+mixer.music.play(-1)
+
 
 running = True
 
@@ -221,6 +242,8 @@ def display_over():
     if choice=="EASY":  
         file_e.write(name+":"+str(score_value)+"\n")
         file_e.close()
+          
+            
     if choice=="MEDIUM":  
         file_m.write(name+":"+str(score_value)+"\n")
         file_m.close()
@@ -303,6 +326,8 @@ while running:
             if event.key==pygame.K_DOWN:
                 pychange=0.35  
             if event.key==pygame.K_SPACE and bstate=='ready':
+                bullet_Sound=mixer.Sound('laser.wav')
+                bullet_Sound.play()
                 bulletX=playerX
                 fire_bullet(bulletX,bulletY)
                 
@@ -355,6 +380,8 @@ while running:
                 collision=isCollision(bulletX,bulletY,enemyX[i],enemyY[i])
             
                 if collision:
+                    explosion_Sound=mixer.Sound('explosion.wav')
+                    explosion_Sound.play()
                     bulletY=playerY
                     bstate='ready'
                     score_value+=1
