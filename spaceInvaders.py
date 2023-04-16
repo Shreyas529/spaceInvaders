@@ -3,26 +3,26 @@ import random
 import math as m
 import threading
 from menu import *
+from button import Button
+from username import *
 
 
 choice = main_menu()
 if(choice=="EASY"):
     exspeed=0.35
     eyspeed=35
+    name=get_user_name()
     
 elif(choice=="MEDIUM"):
-    print("entered ")
     exspeed=0.5
     eyspeed=40
+    name=get_user_name()
     
 elif(choice=="HARD"):
     exspeed=0.75
     eyspeed=50
+    name=get_user_name()
 
-else:
-    pygame.quit()
-    sys.exit()
-    
     
 pygame.init()
 
@@ -78,15 +78,28 @@ bxchange=0
 bychange=0.75
 bstate='ready'  #ready = cant seee bullet on screen     fire = can be seen
 
+name_list=[]
+score_list=[]
+score_dict={}
 
+def get_list(fp):
+    global name_list,score_list,score_dict
+    t=[i.split(":") for i in fp.readlines()]
+    for i in range(len(t)):
+            name_list.append(t[i][0])
+            score_list.append(int(t[i][1]))
+    
+    for j in range(len(score_list)):
+        score_dict[score_list[j]]=name_list[j]
+        
+    sorted(score_list,reverse=True)
 
 def pause(paused):
     global screen,background
     while paused:
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
-                pygame.quit()
-                quit()
+                confirm_exit()
             if event.type==pygame.KEYDOWN:
                 if event.key==pygame.K_c:
                     paused=False
@@ -116,11 +129,43 @@ def fire_bullet(x,y):
     bstate='fire'
     screen.blit(bulletImg , (x+16,y+10))    
 
+score_value=0
+
 def isCollision(bulletX ,bulletY , enemyX , enemyY):
     distance=m.sqrt(m.pow(enemyX-bulletX,2)+m.pow(enemyY-bulletY,2))
     if distance<27 and bstate=='fire':
         return True
     return False
+
+# file_e=open("LBE.txt","a")
+# file_m=open("LBM.txt","a")
+# file_h=open("LBH.txt","a")
+    
+def confirm_exit():
+    global background,screen,choice,score_value
+    
+    while True:
+        EXIT_MOUSE_POS=pygame.mouse.get_pos()
+        screen.blit(background,(0,0))
+        over_text=font.render("Are you sure you want to exit?",True,(237, 5, 222))
+        screen.blit(over_text,(50,200))
+        EXIT_1=Button(image=None,pos=(340,300),text_input="CONFIRM",font=get_font(32),base_color="Black",hovering_color="Green")
+        EXIT_1.changeColor(EXIT_MOUSE_POS)
+        EXIT_1.update(screen)
+        CANCEL=Button(image=None,pos=(640,300),text_input="CANCEL",font=get_font(32),base_color="Black",hovering_color="Green")
+        CANCEL.changeColor(EXIT_MOUSE_POS)
+        CANCEL.update(screen)
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type==pygame.MOUSEBUTTONDOWN:
+                if EXIT_1.checkForInput(EXIT_MOUSE_POS):
+                    pygame.quit()
+                    sys.exit()
+                elif CANCEL.checkForInput(EXIT_MOUSE_POS):
+                    return None
+        pygame.display.update()
     
     
 pygame.display.set_icon(icon)
@@ -128,7 +173,7 @@ pygame.display.set_icon(icon)
 pygame.display.set_caption("Space Invaders")
 
 #score
-score_value=0
+
 font = pygame.font.Font('freesansbold.ttf',32)
 
 textX=10
@@ -139,15 +184,18 @@ def show_exit():
 
 def show_pause():
     screen.blit(pause_button,(635,0))
+    
 
-file_read=open("Leader Board.txt","r")
-max_score=int(file_read.read().strip())
-file_read.close()
-file_write=open("Leader Board.txt","w")
-
+if  choice=="EASY": file=open("LBE.txt","r")
+if  choice=="MEDIUM": file=open("LBM.txt","r")
+if  choice=="HARD": file=open("LBH.txt","r")    
+get_list(file)
 
 def show_score(x,y):
-    global max_score
+    global choice
+    get_list(file)
+    if len(score_list)!=0:  max_score=max(score_list)
+    else:   max_score=0
     score=font.render("Score :"+str(score_value),True,(237, 5, 222))
     high_score=font.render("High Score :"+str(max_score),True,(237, 5, 222))
     screen.blit(high_score,(x,y+30))
@@ -155,8 +203,12 @@ def show_score(x,y):
 
 over_font=pygame.font.Font('freesansbold.ttf',100)
 
+
 def display_over():
-    global score_value,max_score,background
+    global score_value,background,choice
+    file_e=open("LBE.txt","a")
+    file_m=open("LBM.txt","a")
+    file_h=open("LBH.txt","a")
     screen.blit(background,(0,0))
     over_text=over_font.render("GAME OVER",True,(237, 5, 222))
     reset_text=font.render("Press Space to restart",True,(237, 5, 222))
@@ -166,9 +218,15 @@ def display_over():
     screen.blit(over_text,(100,200))
     screen.blit(reset_text,(230 , 400))
     screen.blit(score,(320,500))
-    max_score=max(max_score,score_value)
-    file_write.write(f'{max_score}')
-    score_value=0
+    if choice=="EASY":  
+        file_e.write(name+":"+str(score_value)+"\n")
+        file_e.close()
+    if choice=="MEDIUM":  
+        file_m.write(name+":"+str(score_value)+"\n")
+        file_m.close()
+    if choice=="HARD":  
+        file_h.write(name+":"+str(score_value)+"\n")  
+        file_h.close()  
     pygame.display.update()  
 
 game_active=True
@@ -231,7 +289,8 @@ while running:
     
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
-            running = False
+            confirm_exit()
+            break
 
         #if keystroke is pressed check which direction
         if event.type==pygame.KEYDOWN and game_active:
@@ -264,6 +323,8 @@ while running:
             if left and (not mid) and (not right):
                 if pause_rect.collidepoint(event.pos):
                     pause(True)
+
+                    
     
     if loading_finished:
         if game_active: 
@@ -318,7 +379,7 @@ while running:
             player(playerX,playerY)
             
         else:
-            screen.fill((255,255,255))
+            # screen.fill((255,255,255))
             display_over()
             pygame.display.update()
             run = True
@@ -327,13 +388,14 @@ while running:
             while(run):
                 for event in pygame.event.get():
                     if event.type==pygame.QUIT:
-                        pygame.quit()
+                        confirm_exit()
+                        display_over()
                     if (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE):
                         score_value=0
                         run = False
                     if (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
-                        pygame.quit()
-                        sys.exit()
+                        confirm_exit()
+                        display_over() 
             place_enemy()
             playerX=370
             playerY=480

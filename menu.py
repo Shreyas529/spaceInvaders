@@ -78,11 +78,11 @@ def ranking():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if RANKING_EASY.checkForInput(RANKING_MOUSE_POS):
-                    return "EASY"
+                    return "ERANK"
                 elif RANKING_MEDIUM.checkForInput(RANKING_MOUSE_POS):
-                    return "MEDIUM"
+                    return "MRANK"
                 elif RANKING_HARD.checkForInput(RANKING_MOUSE_POS):
-                    return "HARD"
+                    return "HRANK"
                 else:
                     #main_menu()
                     return "NONE"
